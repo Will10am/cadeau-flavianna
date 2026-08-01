@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Un jeu spécial pour toi ❤️</title>
+  
+  <!-- Jolie police calligraphique pour le poème -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Pluie de cœurs en arrière-plan */
+    .heart-bg {
+      position: fixed;
+      top: -10vh;
+      color: rgba(255, 105, 180, 0.3);
+      font-size: 20px;
+      animation: fall linear infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+      }
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 500px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(12px);
+      padding: 25px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    /* Barre de progression */
+    .progress-container {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 12px;
+      width: 0%;
+      background: linear-gradient(90deg, #ff758c, #ff7eb3);
+      transition: width 0.4s ease;
+      border-radius: 10px;
+    }
+
+    .step-text {
+      font-size: 0.9rem;
+      color: #f8c8dc;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    /* Énigmes */
+    .riddle-title {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #ffe6ee;
+      line-height: 1.5;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-option {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: white;
+      padding: 14px;
+      font-size: 0.95rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-option:hover {
+      background: rgba(255, 117, 140, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Zone de taquinerie en bas */
+    .feedback {
+      min-height: 40px;
+      margin-top: 15px;
+      font-size: 0.95rem;
+      color: #ff9ebb;
+      font-weight: bold;
+      font-style: italic;
+    }
+
+    /* Écran Cadeau / Fin */
+    #gift-screen, #poem-screen {
+      display: none;
+    }
+
+    .gift-box {
+      font-size: 90px;
+      animation: bounce 2s infinite;
+      cursor: pointer;
+      margin: 20px 0;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-15px); }
+      60% { transform: translateY(-7px); }
+    }
+
+    /* Style du poème avec la jolie police calligraphique */
+    .poem-text {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.2rem;
+      line-height: 1.6;
+      color: #ffd1dc;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Zone Énigmes -->
+    <div id="quiz-zone">
+      <div class="step-text" id="stepText">Étape 1/5</div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="riddle-title" id="riddleQuestion">Chargement...</div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <!-- Zone Ouverture Cadeau -->
+    <div id="gift-screen" onclick="openGift()">
+      <h2>Bravo ! Tu as atteint la fin ! 🎉</h2>
+      <div class="gift-box">🎁</div>
+      <p style="color: #f8c8dc;">Clique sur le cadeau pour découvrir ta surprise...</p>
+    </div>
+
+    <!-- Zone Poème Final avec écriture élégante -->
+    <div id="poem-screen">
+      <div id="typewriter" class="poem-text"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- NOUVELLES ÉNIGMES + TAQUINERIES ---
+    const riddles = [
+      {
+        question: "1. Quand on fait une photo ensemble, quel est le plus gros problème d'angle ?",
+        options: [
+          { text: "A) Le soleil qui tappe trop fort ☀️", taunt: "Mais oui c'est ça... assume ta taille un peu ! 😂" },
+          { text: "B) On doit baisser la caméra de 1 mètre pour te voir 📐", taunt: "C'était évident ! Ma petite demi-portion 🤏" },
+          { text: "C) Tu es trop parfaite pour l'objectif ✨", taunt: "C'est mignon, mais n'oublie pas que tu rentres dans ma poche ! 😜" }
+        ],
+        correctIndex: 1
+      },
+      {
+        question: "2. Si tu te cognes la tête au plafond un jour, ça veut dire quoi ?",
+        options: [
+          { text: "A) Que tu as enfin pris 50 cm d'un coup 📏", taunt: "Même en rêve ça n'arrive pas ! 😂" },
+          { text: "B) Que le plafond était à 1m20 du sol 🏠", taunt: "Voilà, exactement la bonne explication ! 😂" },
+          { text: "C) Que c'est la faute de ta GROSSE tête qui déborde 🗣️", taunt: "Exactement, ce boulard prend trop de place ! 🤪" }
+        ],
+        correctIndex: 2
+      },
+      {
+        question: "3. Quelle est la vraie raison pour laquelle tu es si souvent de mauvaise humeur / boudeuse ?",
+        options: [
+          { text: "A) Parce que tu as faim 🍕", taunt: "Une demi-portion ça mange pas tant que ça pourtant ! 😜" },
+          { text: "B) C'est ton charme naturel de boudeuse 😤", taunt: "Ah ça, pour bouder tu es la championne du monde ! 😂" },
+          { text: "C) Trop de pensées entassées dans une petite tête", taunt: "Ça fait beaucoup de nœuds au cerveau tout ça ! 🧠" }
+        ],
+        correctIndex: 1
+      },
+      {
+        question: "4. Quand on marche côte à côte dans la rue, à quoi ressemble notre duo ?",
+        options: [
+          { text: "A) Un garde du corps et sa petite protégée 🛡️", taunt: "Un garde du corps d'1m89 oui ! Hahaha 😂" },
+          { text: "B) Deux mannequins de mode 💃🕺", taunt: "L'illusion est belle mais le décalage de taille est réel ! 😜" },
+          { text: "C) Un géant qui promène sa peluche préférée 🧸", taunt: "Exactement ça, ma petite taille préférée ! ❤️" }
+        ],
+        correctIndex: 0
+      },
+      {
+        question: "5. Au final, quelle est la vérité absolue sur toi ?",
+        options: [
+          { text: "A) Tu es une vraie demi-portion mais je t'adore 🤏", taunt: "Et c'est pour ça que je t'aime autant ! ❤️" },
+          { text: "B) Ta grosse tête contient tout l'amour du monde 💖", taunt: "C'est exactement ça ! 🥰" },
+          { text: "C) Les deux, et tu es la meilleure copine du monde 🥰", taunt: "Évidemment ! La seule et l'unique ! ❤️" }
+        ],
+        correctIndex: 2
+      }
+    ];
+
+    // --- TON POÈME / MESSAGE ---
+    const textToType = "Mon amour,\n\nMême si je passe mon temps à te charrier sur ta taille ou ta grosse tête,\nsache que tu es la plus belle chose qui m'soit arrivée.\n\nTu occupes absolument tout l'espace dans mon cœur.\n\nMerci d'être qui tu es. Je t'aime ! ❤️";
+
+    let currentStep = 0;
+
+    // Pluie de cœurs
+    function createHearts() {
+      for (let i = 0; i < 20; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart-bg');
+        heart.innerHTML = '💖';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = Math.random() * 3 + 3 + 's';
+        heart.style.delay = Math.random() * 2 + 's';
+        document.body.appendChild(heart);
+      }
+    }
+    createHearts();
+
+    // Charger une énigme
+    function loadRiddle() {
+      const r = riddles[currentStep];
+      
+      const progressPercent = ((currentStep + 1) / riddles.length) * 100;
+      document.getElementById('progressBar').style.width = progressPercent + "%";
+      document.getElementById('stepText').innerText = `Étape ${currentStep + 1}/${riddles.length}`;
+      
+      document.getElementById('riddleQuestion').innerText = r.question;
+      const grid = document.getElementById('optionsGrid');
+      grid.innerHTML = "";
+
+      r.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.classList.add('btn-option');
+        btn.innerText = opt.text;
+        btn.onclick = () => selectOption(index);
+        grid.appendChild(btn);
+      });
+    }
+
+    // Gestion du clic (avance TOUJOURS + affiche la taquinerie)
+    function selectOption(selectedIndex) {
+      const selectedOpt = riddles[currentStep].options[selectedIndex];
+      const feedbackDiv = document.getElementById('feedback');
+
+      // Affiche le mot pour la charrier
+      feedbackDiv.innerText = selectedOpt.taunt;
+
+      // Avance à la suite après une très courte pause pour qu'elle puisse lire le mot drôle
+      setTimeout(() => {
+        feedbackDiv.innerText = "";
+        currentStep++;
+        if (currentStep < riddles.length) {
+          loadRiddle();
+        } else {
+          // Arrivée au cadeau
+          document.getElementById('quiz-zone').style.display = 'none';
+          document.getElementById('gift-screen').style.display = 'block';
+          confetti({ particleCount: 50, spread: 60 });
+        }
+      }, 1200); // 1.2 secondes d'attente pour lire la réplique
+    }
+
+    loadRiddle();
+
+    // Ouverture du Cadeau Final
+    function openGift() {
+      document.getElementById('gift-screen').style.display = 'none';
+      document.getElementById('poem-screen').style.display = 'block';
+
+      confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+      startTypewriter();
+    }
+
+    // Effet machine à écrire
+    let index = 0;
+    function startTypewriter() {
+      const container = document.getElementById('typewriter');
+      if (index < textToType.length) {
+        container.innerHTML += textToType.charAt(index) === '\n' ? '<br>' : textToType.charAt(index);
+        index++;
+        setTimeout(startTypewriter, 50);
+      }
+    }
+  </script>
+</body>
+  </html>
+  
