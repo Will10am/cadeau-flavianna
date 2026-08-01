@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Un cadeau pour Flavianna ❤️</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(#060818,#111b38);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+text-align:center;
+overflow:hidden;
+}
+
+.box{
+max-width:700px;
+padding:20px;
+}
+
+button{
+padding:15px 30px;
+font-size:18px;
+border:none;
+border-radius:15px;
+cursor:pointer;
+background:#ff4d88;
+color:white;
+}
+
+input{
+padding:12px;
+font-size:18px;
+border-radius:10px;
+border:none;
+margin-top:20px;
+}
+
+#game,#message{
+display:none;
+}
+
+h1{
+font-size:30px;
+}
+
+p{
+line-height:1.7;
+}
+</style>
+
+</head>
+<body>
+
+<div class="box">
+
+<div id="home">
+<h1>🎁 Un cadeau t'attend...</h1>
+
+<p>
+Tu vas devoir résoudre quelques énigmes avant de découvrir ce qui se cache derrière ce cadeau.
+</p>
+
+<button onclick="start()">Ouvrir le cadeau ❤️</button>
+
+</div>
+
+<div id="game">
+
+<h2 id="question"></h2>
+
+<input id="answer" placeholder="Ta réponse">
+
+<br><br>
+
+<button onclick="check()">Valider</button>
+
+<p id="info"></p>
+
+</div>
+
+<div id="message">
+
+<h1>🤍 Pour Flavianna 🤍</h1>
+
+<p>
+
+À toi, ma Flavianna, mon plus doux horizon,<br><br>
+
+Celle qui fait sourire jusqu'à mes déraisons.<br><br>
+
+Ton rire est une étoile qui traverse mes nuits,<br><br>
+
+Et chasse en un instant tous mes plus grands ennuis.<br><br>
+
+Tu n'es pas seulement un visage que j'admire,<br><br>
+
+Tu es ce calme rare qui m'apprend à sourire.<br><br>
+
+Dans le bruit de ce monde où tout semble changer,<br><br>
+
+Tu es le seul endroit où j'aime me poser.<br><br>
+
+Nos chamailleries font partie de notre histoire,<br><br>
+
+On se lance des piques, puis revient l'espoir.<br><br>
+
+Car derrière chaque blague, chaque mot un peu fou,<br><br>
+
+Se cache un cœur sincère qui ne bat que pour nous.<br><br>
+
+Si le temps nous éprouve et rallonge les jours,<br><br>
+
+Il n'effacera jamais la force de mon amour.<br><br>
+
+Je choisirais encore ta main contre la mienne,<br><br>
+
+Aujourd'hui, demain... et pour toutes les semaines.<br><br>
+
+Alors en ce beau jour, je veux juste te dire,<br><br>
+
+Que tu es mon bonheur, mon plus beau souvenir.<br><br>
+
+Bonne National Girlfriend Day, ma Flavianna adorée.<br><br>
+
+Je t'aime d'un amour que les mots ne pourront jamais entièrement raconter. 🤍
+
+</p>
+
+</div>
+
+</div>
+
+<script>
+
+const questions=[
+{
+q:"Je disparais lorsque la lumière apparaît. Qui suis-je ?",
+a:"ombre"
+},
+{
+q:"Plus tu en fais, plus tu en laisses derrière toi.",
+a:"pas"
+},
+{
+q:"Je bats sans jambes et je parle sans bouche.",
+a:"coeur"
+}
+];
+
+let i=0;
+
+function start(){
+
+document.getElementById("home").style.display="none";
+
+document.getElementById("game").style.display="block";
+
+document.getElementById("question").innerText=questions[i].q;
+
+}
+
+function check(){
+
+let r=document.getElementById("answer").value.toLowerCase().trim();
+
+r=r.replace("œ","oe");
+
+if(r===questions[i].a){
+
+i++;
+
+document.getElementById("answer").value="";
+
+document.getElementById("info").innerHTML="✅ Bravo !";
+
+if(i<questions.length){
+
+document.getElementById("question").innerText=questions[i].q;
+
+}else{
+
+document.getElementById("game").style.display="none";
+
+document.getElementById("message").style.display="block";
+
+}
+
+}else{
+
+document.getElementById("info").innerHTML="❌ Ce n'est pas ça... essaie encore ❤️";
+
+}
+
+}
+
+</script>
+
+</body>
+  </html>
